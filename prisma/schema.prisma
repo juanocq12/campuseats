@@ -1,0 +1,67 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  moduleFormat        = "esm"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Rol {
+  CLIENTE
+  ADMIN
+}
+
+enum EstadoPedido {
+  RECIBIDO
+  PREPARANDO
+  LISTO
+  ENTREGADO
+  CANCELADO
+}
+
+model Usuario {
+  id           Int      @id @default(autoincrement())
+  nombre       String
+  email        String   @unique
+  passwordHash String
+  rol          Rol      @default(CLIENTE)
+  creadoEn     DateTime @default(now())
+  pedidos      Pedido[]
+}
+
+model Producto {
+  id          Int         @id @default(autoincrement())
+  nombre      String      @unique
+  precio      Int
+  stock       Int         @default(0)
+  disponible  Boolean     @default(true)
+  descripcion String?
+  categoria   String      @default("General")
+  createdAt   DateTime    @default(now())
+  items       PedidoItem[]
+
+  @@map("productos")
+}
+
+model Pedido {
+  id        Int          @id @default(autoincrement())
+  estado    EstadoPedido @default(RECIBIDO)
+  total     Int
+  creadoEn  DateTime     @default(now())
+  usuarioId Int
+  usuario   Usuario      @relation(fields: [usuarioId], references: [id])
+  items     PedidoItem[]
+}
+
+model PedidoItem {
+  id             Int      @id @default(autoincrement())
+  cantidad       Int
+  precioUnitario Int
+  pedidoId       Int
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id])
+  productoId     Int
+  producto       Producto @relation(fields: [productoId], references: [id])
+}
