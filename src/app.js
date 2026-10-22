@@ -1,6 +1,7 @@
 // Configura Express (sin arrancarlo)
 import express from 'express';
 import morgan from 'morgan';
+import authRouter from './routes/auth.routes.js';
 import productosRouter from './routes/productos.routes.js';
 import pedidosRouter from './routes/pedidos.routes.js';
 import { manejadorErrores } from './middlewares/errores.js';
@@ -11,6 +12,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.get('/', (req, res) => res.json({ nombre: 'CampusEats API', version: '1.0' }));
+app.use('/api/auth', authRouter);
 app.use('/api/productos', productosRouter);
 app.use('/api/pedidos', pedidosRouter);
 

@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import * as controlador from '../controllers/productos.controller.js';
+import { autenticar, requerirRol } from '../middlewares/autenticacion.js';
 import { validar } from '../middlewares/validar.js';
 
 const router = Router();
@@ -19,15 +20,17 @@ const reglasProducto = [
 
 router.get('/', controlador.listar);
 router.get('/:id', reglaId, validar, controlador.obtener);
-router.post('/', reglasProducto, validar, controlador.crear);
-router.put('/:id', reglaId, reglasProducto, validar, controlador.actualizar);
+router.post('/', autenticar, requerirRol('ADMIN'), reglasProducto, validar, controlador.crear);
+router.put('/:id', autenticar, requerirRol('ADMIN'), reglaId, reglasProducto, validar, controlador.actualizar);
 router.patch(
   '/:id/stock',
+  autenticar,
+  requerirRol('ADMIN'),
   reglaId,
   body('delta').isInt().withMessage('delta debe ser un entero'),
   validar,
   controlador.ajustarStock
 );
-router.delete('/:id', reglaId, validar, controlador.eliminar);
+router.delete('/:id', autenticar, requerirRol('ADMIN'), reglaId, validar, controlador.eliminar);
 
 export default router;

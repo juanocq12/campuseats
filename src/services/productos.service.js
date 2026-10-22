@@ -1,15 +1,12 @@
 import { prisma } from '../db.js';
 import { noEncontrado, conflicto, datosInvalidos } from '../errores.js';
 
-export async function listar({ disponibles } = {}) {
-  if (disponibles) {
-    return prisma.producto.findMany({
-      where: { stock: { gt: 0 } },
-      orderBy: { id: 'asc' },
-    });
-  }
-
+export async function listar({ disponibles, buscar } = {}) {
   return prisma.producto.findMany({
+    where: {
+      ...(disponibles ? { stock: { gt: 0 }, disponible: true } : {}),
+      ...(buscar ? { nombre: { contains: buscar, mode: 'insensitive' } } : {}),
+    },
     orderBy: { id: 'asc' },
   });
 }

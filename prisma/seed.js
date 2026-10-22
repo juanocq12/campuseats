@@ -1,24 +1,44 @@
+import bcrypt from 'bcrypt';
 import { prisma } from '../src/db.js';
 
 async function main() {
+  const passwordAdmin = process.env.SEED_ADMIN_PASSWORD;
+  const passwordCliente = process.env.SEED_CLIENT_PASSWORD;
+  if (!passwordAdmin || !passwordCliente) {
+    throw new Error('Configura SEED_ADMIN_PASSWORD y SEED_CLIENT_PASSWORD antes de ejecutar el seed');
+  }
+  for (const [nombre, password] of [
+    ['SEED_ADMIN_PASSWORD', passwordAdmin],
+    ['SEED_CLIENT_PASSWORD', passwordCliente],
+  ]) {
+    if (password.length < 8 || Buffer.byteLength(password, 'utf8') > 72) {
+      throw new Error(`${nombre} debe tener entre 8 y 72 bytes`);
+    }
+  }
+
+  const [hashAdmin, hashCliente] = await Promise.all([
+    bcrypt.hash(passwordAdmin, 10),
+    bcrypt.hash(passwordCliente, 10),
+  ]);
+
   await prisma.usuario.upsert({
     where: { email: 'admin@campuseats.co' },
-    update: {},
+    update: { passwordHash: hashAdmin, rol: 'ADMIN' },
     create: {
       nombre: 'Admin Cafetería',
       email: 'admin@campuseats.co',
-      passwordHash: 'TODO-semana-8',
+      passwordHash: hashAdmin,
       rol: 'ADMIN',
     },
   });
 
   await prisma.usuario.upsert({
     where: { email: 'ana@ucaldas.edu.co' },
-    update: {},
+    update: { passwordHash: hashCliente, rol: 'CLIENTE' },
     create: {
       nombre: 'Ana Estudiante',
       email: 'ana@ucaldas.edu.co',
-      passwordHash: 'TODO-semana-8',
+      passwordHash: hashCliente,
       rol: 'CLIENTE',
     },
   });

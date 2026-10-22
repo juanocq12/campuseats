@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { prisma } from '../db.js';
 import { conflicto, noEncontrado } from '../errores.js';
 
@@ -13,12 +14,12 @@ export async function buscarPorId(id) {
   return usuario;
 }
 
-export async function crear({ nombre, email, password, rol }) {
+export async function crear({ nombre, email, password }) {
   const existe = await prisma.usuario.findUnique({ where: { email } });
   if (existe) throw conflicto('Ya existe un usuario con ese email');
+  const passwordHash = await bcrypt.hash(password, 10);
   return prisma.usuario.create({
-    // TODO semana 8: passwordHash = await bcrypt.hash(password, 10)
-    data: { nombre, email, passwordHash: password, rol },
+    data: { nombre, email, passwordHash, rol: 'CLIENTE' },
     select: camposPublicos,
   });
 }
