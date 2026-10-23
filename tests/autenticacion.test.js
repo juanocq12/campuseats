@@ -38,6 +38,17 @@ test('rechaza JWT expirados', () => {
   assert.equal(resultado.error?.codigo, 401);
 });
 
+test('rechaza JWT alterados', () => {
+  const token = jwt.sign({ rol: 'CLIENTE' }, secret, { subject: '7', expiresIn: '1h' });
+  const [cabecera, payload] = token.split('.');
+  const contenidoAlterado = Buffer.from(
+    JSON.stringify({ ...JSON.parse(Buffer.from(payload, 'base64url').toString()), rol: 'ADMIN' })
+  ).toString('base64url');
+  const resultado = ejecutar(autenticar, `Bearer ${cabecera}.${contenidoAlterado}.${token.split('.')[2]}`);
+
+  assert.equal(resultado.error?.codigo, 401);
+});
+
 test('permite la ruta cuando el rol está autorizado', () => {
   const resultado = ejecutar((req, res, next) => {
     req.usuario = { id: 1, rol: 'ADMIN' };

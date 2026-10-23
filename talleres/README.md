@@ -13,6 +13,10 @@ Este índice separa los ejercicios cortos de clase del proyecto principal. Se ej
 | 7 | Taller guiado de relaciones Prisma, seed repetible, transacciones y rollback, concurrencia, consultas, estados y reporte. | Sigue [`semana-7.md`](./semana-7.md); `npm test` verifica el caso exacto de 20 pedidos concurrentes de 3 unidades con stock 40. |
 | 8 | Registro bcrypt, JWT y roles CLIENTE/ADMIN en `src/routes/auth.routes.js` y `src/middlewares/autenticacion.js`. | Importar y probar las solicitudes del grupo “Autenticación” en Postman. El parcial individual de biblioteca no pertenece a estos talleres de CampusEats. |
 
+## Experimentos y evidencias personales
+
+Las prácticas comparativas y la bitácora para registrar resultados propios de las semanas 1–8 están en [`bitacora-experimentos-1-a-8.md`](./bitacora-experimentos-1-a-8.md). El laboratorio de consultas relacionadas de semana 7 está en `experimentos/semana-7/lab-n1.mjs`; es de solo lectura y requiere una base de desarrollo configurada.
+
 ## Pruebas de los talleres Node
 
 ```bash
