@@ -315,7 +315,33 @@
                 "exec": [
                   "pm.test('Lista de productos disponible', function () { pm.response.to.have.status(200); });",
                   "const productos = pm.response.json();",
+                  "pm.test('Todos los resultados tienen inventario disponible', function () {",
+                  "  pm.expect(productos.every((producto) => producto.disponible === true && producto.stock > 0)).to.eql(true);",
+                  "});",
                   "if (productos.length > 0) pm.collectionVariables.set('productId', String(productos[0].id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Buscar productos por nombre (Café)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/productos?buscar=Caf%C3%A9"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('La búsqueda responde 200', function () { pm.response.to.have.status(200); });",
+                  "const productos = pm.response.json();",
+                  "pm.test('Todos los resultados contienen Café sin distinguir mayúsculas', function () {",
+                  "  pm.expect(productos.length).to.be.above(0);",
+                  "  pm.expect(productos.every((producto) => producto.nombre.toLocaleLowerCase().includes('café'))).to.eql(true);",
+                  "});"
                 ]
               }
             }

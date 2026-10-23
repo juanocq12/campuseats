@@ -60,9 +60,10 @@ La [comparación REST existente](./semana-5-rest.md) describe por qué CampusEat
 
 1. Envía un mismo objeto como JSON y como `text/plain`; registra el `req.body` y el resultado HTTP. No cambies la ruta de producción: usa Postman, un test temporal o una copia local.
 2. En la colección Postman, ejecuta `Error 400: producto con nombre vacío (ADMIN)` y `Error 400: producto con precio negativo (ADMIN)`. Después prueba un ID inexistente, un ID no numérico y un nombre duplicado. Registra el estado y el mensaje que realmente recibiste; las solicitudes de nombre vacío y precio negativo esperan `400`.
-3. Repite tres veces un PUT de los mismos datos y un PATCH que descuenta una unidad. Consulta el recurso después de cada solicitud y compara el estado final.
-4. Revisa las validaciones existentes. Si quieres observar datos sin validar, hazlo únicamente en una copia descartable, sin persistencia y sin acceso público.
-5. Revisa cómo responde el manejador de errores en desarrollo y producción. No introduzcas un error deliberado en un servidor accesible desde internet.
+3. Para búsqueda/disponibilidad, ejecuta `Listar productos disponibles` y `Buscar productos por nombre (Café)`. La primera comprueba que cada resultado esté marcado disponible y tenga stock mayor que cero; la segunda busca el nombre parcial sin distinguir mayúsculas. Requiere el producto de seed `Café campesino`; registra los resultados que observaste.
+4. Repite tres veces un PUT de los mismos datos y un PATCH que descuenta una unidad. Consulta el recurso después de cada solicitud y compara el estado final.
+5. Revisa las validaciones existentes. Si quieres observar datos sin validar, hazlo únicamente en una copia descartable, sin persistencia y sin acceso público.
+6. Revisa cómo responde el manejador de errores en desarrollo y producción. No introduzcas un error deliberado en un servidor accesible desde internet.
 
 **Evidencia que debes completar:** solicitud, código de respuesta, estado antes/después y explicación de si repetirla es seguro.
 
