@@ -23,17 +23,19 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
     `admin-${sufijo}@example.test`,
     `otro-${sufijo}@example.test`,
     `registro-${sufijo}@example.test`,
+    `usuario-api-${sufijo}@example.test`,
   ];
   const usuarioIds = [];
   const productoIds = [];
   let server;
 
-  async function peticion(ruta, { method = 'GET', token, body } = {}) {
+  async function peticion(ruta, { method = 'GET', token, body, headers = {} } = {}) {
     const respuesta = await fetch(`http://127.0.0.1:${server.address().port}${ruta}`, {
       method,
       headers: {
         ...(token ? { authorization: `Bearer ${token}` } : {}),
         ...(body ? { 'content-type': 'application/json' } : {}),
+        ...headers,
       },
       ...(body ? { body: JSON.stringify(body) } : {}),
     });
@@ -114,6 +116,35 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       tokenDe(emails[2], 'CLIENTE'),
     ]);
 
+    assert.equal((await peticion('/api/usuarios', { token: clientToken })).status, 403);
+    const usuarios = await peticion('/api/usuarios', { token: adminToken });
+    assert.equal(usuarios.status, 200);
+    assert.equal(usuarios.data.some((usuario) => 'passwordHash' in usuario), false);
+    assert.equal((await peticion('/api/usuarios/no-es-id', { token: adminToken })).status, 400);
+    const usuarioPorId = await peticion(`/api/usuarios/${usuarioIds[0]}`, { token: adminToken });
+    assert.equal(usuarioPorId.status, 200);
+    assert.equal('passwordHash' in usuarioPorId.data, false);
+    const usuarioInvalido = await peticion('/api/usuarios', {
+      method: 'POST',
+      token: adminToken,
+      body: { nombre: '', email: 'no-es-correo', password: 'corta' },
+    });
+    assert.equal(usuarioInvalido.status, 400);
+    const usuarioCreado = await peticion('/api/usuarios', {
+      method: 'POST',
+      token: adminToken,
+      body: { nombre: 'Usuario desde API', email: emails[4], password },
+    });
+    assert.equal(usuarioCreado.status, 201);
+    assert.equal('passwordHash' in usuarioCreado.data, false);
+    usuarioIds.push(usuarioCreado.data.id);
+    const usuarioDuplicado = await peticion('/api/usuarios', {
+      method: 'POST',
+      token: adminToken,
+      body: { nombre: 'Usuario duplicado', email: emails[4], password },
+    });
+    assert.equal(usuarioDuplicado.status, 409);
+
     const prohibido = await peticion('/api/productos', {
       method: 'POST',
       token: clientToken,
@@ -146,6 +177,18 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       },
     });
     assert.equal(productoDuplicado.status, 409);
+    assert.equal((await peticion('/api/productos/2147483647')).status, 404);
+    assert.equal((await peticion('/api/productos', {
+      method: 'POST',
+      token: adminToken,
+      body: { nombre: '', precio: 100 },
+    })).status, 400);
+    assert.equal((await peticion('/api/productos', {
+      method: 'POST',
+      token: adminToken,
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      body: { nombre: 'Arepa', precio: 1500 },
+    })).status, 400);
     assert.equal((await peticion(`/api/productos/${productoAdminId}`)).status, 200);
     const actualizado = await peticion(`/api/productos/${productoAdminId}`, {
       method: 'PUT',

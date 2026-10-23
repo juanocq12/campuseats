@@ -5,6 +5,7 @@ import authRouter from './routes/auth.routes.js';
 import productosRouter from './routes/productos.routes.js';
 import pedidosRouter from './routes/pedidos.routes.js';
 import reportesRouter from './routes/reportes.routes.js';
+import usuariosRouter from './routes/usuarios.routes.js';
 import { manejadorErrores } from './middlewares/errores.js';
 
 const app = express();
@@ -14,6 +15,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => res.json({ nombre: 'CampusEats API', version: '1.0' }));
 app.use('/api/auth', authRouter);
+app.use('/api/usuarios', usuariosRouter);
 app.use('/api/productos', productosRouter);
 app.use('/api/pedidos', pedidosRouter);
 app.use('/api/reportes', reportesRouter);

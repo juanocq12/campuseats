@@ -17,7 +17,7 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 - [Diagramas UML y BPMN exportados como SVG](./docs/diagramas/).
 - [Checklist de revisión de semanas 1–8](./docs/avance-semanas-1-a-8.md).
 - [Talleres y prácticas de las semanas 1–8](./talleres/README.md), con guías específicas para las prácticas de semanas 5, 6 y 7.
-- [Colección oficial de Postman](./postman/CampusEats.postman_collection.json).
+- [Colección oficial de Postman](./docs/postman/CampusEats.postman_collection.json).
 - [Hito 1: dominio y diagramas](./docs/modelado.md#hito-1-dominio-y-alcance).
 - Hito 2: API por capas con CRUD de productos, pedidos transaccionales, seed, PostgreSQL/Prisma, filtros, paginación y reporte de ventas.
 - Semana 8: registro/login, hash bcrypt, JWT y permisos por rol.
@@ -75,6 +75,14 @@ El seed repone el hash de cada contraseña según las variables `SEED_ADMIN_PASS
 | `POST` | `/api/auth/login` | Público | Devuelve el perfil y un JWT con expiración de 2 horas |
 | `GET` | `/api/auth/me` | Autenticado | Devuelve el perfil de quien inició sesión |
 
+### Usuarios (ADMIN)
+
+| Método | Ruta | Acceso | Descripción |
+| --- | --- | --- | --- |
+| `GET` | `/api/usuarios` | `ADMIN` | Lista usuarios sin exponer `passwordHash` |
+| `GET` | `/api/usuarios/:id` | `ADMIN` | Consulta un usuario sin exponer `passwordHash` |
+| `POST` | `/api/usuarios` | `ADMIN` | Crea un cliente y guarda su contraseña con bcrypt |
+
 Registro:
 
 ```json
@@ -131,7 +139,7 @@ El servidor calcula el total y descuenta el inventario dentro de una transacció
 
 Los estados permitidos son `RECIBIDO -> PREPARANDO -> LISTO -> ENTREGADO`; se puede cancelar desde `RECIBIDO` o `PREPARANDO`. Al cancelar, el inventario se devuelve en la misma transacción. Las transiciones no permitidas responden `409`.
 
-La colección Postman incluye las solicitudes de autenticación, productos, pedidos, errores del taller de semana 7 y reporte. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. El grupo “Limpieza opcional” borra únicamente el producto temporal creado por la colección. No guardes contraseñas reales en la colección.
+La colección Postman incluye las solicitudes de autenticación, usuarios, productos, pedidos, errores del taller de semana 7 y reporte. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. No guardes contraseñas reales en la colección.
 
 ## Pruebas
 

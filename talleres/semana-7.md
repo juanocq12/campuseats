@@ -32,7 +32,7 @@ Se puede repetir sin duplicar usuarios ni productos. El seed restablece los dato
 
 ## 3. Crear un pedido atómico
 
-Inicia la API con `npm run dev` y autentica un cliente desde la colección [`CampusEats.postman_collection.json`](../postman/CampusEats.postman_collection.json). Crea un pedido con uno o más ítems en `POST /api/pedidos`:
+Inicia la API con `npm run dev` y autentica un cliente desde la colección [`CampusEats.postman_collection.json`](../docs/postman/CampusEats.postman_collection.json). Crea un pedido con uno o más ítems en `POST /api/pedidos`:
 
 ```json
 {

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "610c9074-bfe0-4d78-bf41-3ab9a8f71ea0",
     "name": "CampusEats API",
-    "description": "Colección oficial de prueba para CampusEats. Configura baseUrl, contraseñas de desarrollo y los IDs según el seed local. Los tokens se guardan automáticamente al iniciar sesión.",
+    "description": "Colección oficial de prueba para CampusEats, guardada en docs/postman. Configura baseUrl, contraseñas de desarrollo y los IDs según el seed local. Los tokens se guardan automáticamente al iniciar sesión.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -19,6 +19,8 @@
     { "key": "productName", "value": "" },
     { "key": "pedidoId", "value": "1" },
     { "key": "usuarioId", "value": "2" },
+    { "key": "usuarioPruebaEmail", "value": "" },
+    { "key": "usuarioPruebaId", "value": "" },
     { "key": "fecha", "value": "2026-10-22" }
   ],
   "item": [
@@ -27,19 +29,19 @@
       "description": "Práctica de métodos, rutas, headers, cuerpos JSON y respuestas HTTP usando JSONPlaceholder.",
       "item": [
         {
-          "name": "GET: listar usuarios (200)",
+          "name": "GET: listar publicaciones (200)",
           "request": {
             "method": "GET",
             "header": [{ "key": "Accept", "value": "application/json" }],
-            "url": "{{httpBaseUrl}}/users"
+            "url": "{{httpBaseUrl}}/posts"
           }
         },
         {
-          "name": "GET: consultar usuario (200)",
+          "name": "GET: consultar publicación (200)",
           "request": {
             "method": "GET",
             "header": [{ "key": "Accept", "value": "application/json" }],
-            "url": "{{httpBaseUrl}}/users/7"
+            "url": "{{httpBaseUrl}}/posts/5"
           }
         },
         {
@@ -56,17 +58,30 @@
           }
         },
         {
-          "name": "GET: filtrar usuarios por nombre de usuario (200)",
+          "name": "PUT: reemplazar publicación (200)",
           "request": {
-            "method": "GET",
-            "url": "{{httpBaseUrl}}/users?username=Bret"
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 5,\n  \"title\": \"Publicación actualizada\",\n  \"body\": \"Práctica de método PUT\",\n  \"userId\": 7\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{httpBaseUrl}}/posts/5"
           }
         },
         {
-          "name": "GET: usuario inexistente (404)",
+          "name": "DELETE: eliminar publicación (200)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{httpBaseUrl}}/posts/5"
+          }
+        },
+        {
+          "name": "Error: publicación inexistente (404)",
           "request": {
             "method": "GET",
-            "url": "{{httpBaseUrl}}/users/999"
+            "url": "{{httpBaseUrl}}/posts/999999"
           },
           "event": [
             {
@@ -74,11 +89,24 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Responde 404 al usuario inexistente', function () { pm.response.to.have.status(404); });"
+                  "pm.test('Responde 404 a la publicación inexistente', function () { pm.response.to.have.status(404); });"
                 ]
               }
             }
           ]
+        },
+        {
+          "name": "Error: JSON mal formado (observar respuesta)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"JSON mal formado\", \"userId\": 7",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{httpBaseUrl}}/posts"
+          }
         }
       ]
     },
@@ -180,6 +208,97 @@
       ]
     },
     {
+      "name": "Usuarios (ADMIN)",
+      "item": [
+        {
+          "name": "Listar usuarios sin datos sensibles",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lista usuarios sin exponer passwordHash', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.response.json().forEach(function (usuario) { pm.expect(usuario).not.to.have.property('passwordHash'); });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/usuarios/{{usuarioId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Detalle de usuario no expone passwordHash', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json()).not.to.have.property('passwordHash');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear usuario cliente (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario de prueba\",\n  \"email\": \"{{usuarioPruebaEmail}}\",\n  \"password\": \"cambiar-esta-clave\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/usuarios"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('usuarioPruebaEmail', `usuario.postman.${pm.variables.replaceIn('{{$guid}}')}@example.test`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Usuario cliente creado sin exponer passwordHash', function () {",
+                  "  pm.response.to.have.status(201);",
+                  "  const usuario = pm.response.json();",
+                  "  pm.expect(usuario.rol).to.eql('CLIENTE');",
+                  "  pm.expect(usuario).not.to.have.property('passwordHash');",
+                  "  pm.collectionVariables.set('usuarioPruebaId', String(usuario.id));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "Productos",
       "item": [
         {
@@ -277,6 +396,127 @@
             },
             "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}/stock"
           }
+        },
+        {
+          "name": "Error 400: producto con nombre vacío (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \" \",\n  \"precio\": 1000,\n  \"stock\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Producto inválido responde 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 404: producto inexistente",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/productos/2147483647"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Producto inexistente responde 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 409: producto duplicado (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{productName}}\",\n  \"precio\": 5000,\n  \"stock\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Producto duplicado responde 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 400: Content-Type incorrecto (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"nombre\":\"Arepa\",\"precio\":1500}",
+              "options": { "raw": { "language": "text" } }
+            },
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Content-Type incorrecto responde 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar producto temporal (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Producto temporal eliminado sin cuerpo', function () {",
+                  "  pm.response.to.have.status(204);",
+                  "  pm.expect(pm.response.text()).to.eql('');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -521,19 +761,6 @@
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Limpieza opcional",
-      "item": [
-        {
-          "name": "Eliminar producto temporal (ADMIN)",
-          "request": {
-            "method": "DELETE",
-            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
-            "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}"
-          }
         }
       ]
     }
