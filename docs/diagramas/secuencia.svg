@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="700" viewBox="0 0 1100 700" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama UML de secuencia: crear pedido</title>
+  <desc id="desc">Cliente solicita pedido, middleware valida token, servicio reserva stock en transacción y confirma o revierte.</desc>
+  <defs>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:25px;font-weight:bold}.part{fill:#dbeafe;stroke:#2563eb;stroke-width:2}.name{font-size:15px;font-weight:bold}.life{stroke:#64748b;stroke-dasharray:7 6;stroke-width:2}.msg{stroke:#334155;stroke-width:2;fill:none}.ret{stroke:#64748b;stroke-width:2;stroke-dasharray:6 4;fill:none}.label{font-size:13px}.alt{fill:#f8fafc;stroke:#94a3b8;stroke-width:1.5}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#334155"/></marker>
+    <marker id="return" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#64748b"/></marker>
+  </defs>
+  <rect width="1100" height="700" fill="#fff"/>
+  <text x="550" y="40" text-anchor="middle" class="title">CampusEats — Secuencia: crear pedido</text>
+  <g>
+    <rect x="45" y="70" width="170" height="48" rx="8" class="part"/><text x="130" y="99" text-anchor="middle" class="name">Cliente</text>
+    <rect x="260" y="70" width="170" height="48" rx="8" class="part"/><text x="345" y="99" text-anchor="middle" class="name">Express API</text>
+    <rect x="475" y="70" width="170" height="48" rx="8" class="part"/><text x="560" y="99" text-anchor="middle" class="name">Middleware JWT</text>
+    <rect x="690" y="70" width="170" height="48" rx="8" class="part"/><text x="775" y="99" text-anchor="middle" class="name">Servicio</text>
+    <rect x="905" y="70" width="170" height="48" rx="8" class="part"/><text x="990" y="99" text-anchor="middle" class="name">PostgreSQL</text>
+  </g>
+  <g class="life">
+    <path d="M130 118 V650 M345 118 V650 M560 118 V650 M775 118 V650 M990 118 V650"/>
+  </g>
+  <g class="msg" marker-end="url(#arrow)">
+    <path d="M130 155 H345"/><path d="M345 205 H560"/><path d="M560 255 H345"/>
+    <path d="M345 305 H775"/><path d="M775 355 H990"/><path d="M775 425 H990"/>
+    <path d="M775 495 H990"/><path d="M775 565 H990"/><path d="M775 615 H345"/>
+  </g>
+  <g class="ret" marker-end="url(#return)">
+    <path d="M345 180 H130"/><path d="M990 385 H775"/><path d="M990 455 H775"/>
+    <path d="M990 525 H775"/><path d="M345 645 H130"/>
+  </g>
+  <g class="label">
+    <text x="142" y="147">POST /api/pedidos + items</text>
+    <text x="355" y="197">Verificar Bearer JWT</text>
+    <text x="355" y="247">Identidad y rol</text>
+    <text x="355" y="297">crearPedido(usuarioId, items)</text>
+    <text x="785" y="347">BEGIN + leer productos</text>
+    <text x="785" y="417">UPDATE stock WHERE stock ≥ cantidad</text>
+    <text x="785" y="487">Crear Pedido y PedidoItems</text>
+    <text x="785" y="557">COMMIT</text>
+    <text x="355" y="607">Respuesta con pedido</text>
+    <text x="142" y="637">201 Created</text>
+    <text x="915" y="678">Si stock insuficiente: ROLLBACK y respuesta 409</text>
+  </g>
+  <rect x="680" y="395" width="400" height="112" rx="8" class="alt" opacity="0.35"/>
+</svg>

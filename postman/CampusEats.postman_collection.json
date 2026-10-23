@@ -7,6 +7,7 @@
   },
   "variable": [
     { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "httpBaseUrl", "value": "https://jsonplaceholder.typicode.com" },
     { "key": "clientEmail", "value": "ana@ucaldas.edu.co" },
     { "key": "clientPassword", "value": "" },
     { "key": "adminEmail", "value": "admin@campuseats.co" },
@@ -21,6 +22,66 @@
     { "key": "fecha", "value": "2026-10-22" }
   ],
   "item": [
+    {
+      "name": "Semana 1 - HTTP",
+      "description": "Práctica de métodos, rutas, headers, cuerpos JSON y respuestas HTTP usando JSONPlaceholder.",
+      "item": [
+        {
+          "name": "GET: listar usuarios (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{httpBaseUrl}}/users"
+          }
+        },
+        {
+          "name": "GET: consultar usuario (200)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Accept", "value": "application/json" }],
+            "url": "{{httpBaseUrl}}/users/7"
+          }
+        },
+        {
+          "name": "POST: crear publicación (201)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Practicar HTTP\",\n  \"body\": \"Método POST con JSON\",\n  \"userId\": 7\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{httpBaseUrl}}/posts"
+          }
+        },
+        {
+          "name": "GET: filtrar usuarios por nombre de usuario (200)",
+          "request": {
+            "method": "GET",
+            "url": "{{httpBaseUrl}}/users?username=Bret"
+          }
+        },
+        {
+          "name": "GET: usuario inexistente (404)",
+          "request": {
+            "method": "GET",
+            "url": "{{httpBaseUrl}}/users/999"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Responde 404 al usuario inexistente', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
     {
       "name": "Autenticación",
       "item": [

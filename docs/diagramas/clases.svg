@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama UML de clases de CampusEats</title>
+  <desc id="desc">Usuario realiza pedidos que contienen ítems; cada ítem referencia un producto.</desc>
+  <defs>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:25px;font-weight:bold}.class{fill:#fff;stroke:#2563eb;stroke-width:2}.head{fill:#dbeafe}.name{font-size:18px;font-weight:bold}.field{font-size:14px}.rel{stroke:#475569;stroke-width:2;fill:none}.card{font-size:14px;font-weight:bold}
+    </style>
+  </defs>
+  <rect width="1100" height="650" fill="#fff"/>
+  <text x="550" y="40" text-anchor="middle" class="title">CampusEats — Diagrama de clases</text>
+  <g class="rel">
+    <path d="M330 205 H440"/><path d="M660 205 H770"/><path d="M550 380 V455"/>
+  </g>
+  <g>
+    <text x="350" y="190" class="card">1</text><text x="415" y="190" class="card">0..*</text>
+    <text x="680" y="190" class="card">1</text><text x="745" y="190" class="card">0..*</text>
+    <text x="560" y="405" class="card">1</text><text x="560" y="445" class="card">1..*</text>
+  </g>
+  <g>
+    <rect x="65" y="115" width="265" height="285" class="class"/><rect x="65" y="115" width="265" height="42" class="head"/>
+    <text x="197" y="143" text-anchor="middle" class="name">Usuario</text>
+    <text x="83" y="184" class="field">id: Int</text><text x="83" y="211" class="field">nombre: String</text><text x="83" y="238" class="field">email: String (único)</text><text x="83" y="265" class="field">passwordHash: String</text><text x="83" y="292" class="field">rol: Rol</text><text x="83" y="319" class="field">creadoEn: DateTime</text>
+    <rect x="440" y="115" width="220" height="265" class="class"/><rect x="440" y="115" width="220" height="42" class="head"/>
+    <text x="550" y="143" text-anchor="middle" class="name">Pedido</text>
+    <text x="458" y="184" class="field">id: Int</text><text x="458" y="211" class="field">estado: EstadoPedido</text><text x="458" y="238" class="field">total: Int</text><text x="458" y="265" class="field">creadoEn: DateTime</text><text x="458" y="292" class="field">usuarioId: Int (FK)</text>
+    <rect x="770" y="115" width="265" height="250" class="class"/><rect x="770" y="115" width="265" height="42" class="head"/>
+    <text x="902" y="143" text-anchor="middle" class="name">Producto</text>
+    <text x="788" y="184" class="field">id: Int</text><text x="788" y="211" class="field">nombre: String (único)</text><text x="788" y="238" class="field">precio: Int</text><text x="788" y="265" class="field">stock: Int</text><text x="788" y="292" class="field">disponible: Boolean</text><text x="788" y="319" class="field">categoria: String</text>
+    <rect x="435" y="455" width="230" height="150" class="class"/><rect x="435" y="455" width="230" height="42" class="head"/>
+    <text x="550" y="483" text-anchor="middle" class="name">PedidoItem</text>
+    <text x="453" y="524" class="field">id: Int</text><text x="453" y="551" class="field">cantidad: Int</text><text x="453" y="578" class="field">precioUnitario: Int (congelado)</text>
+  </g>
+  <text x="352" y="347" class="field">realiza</text>
+  <text x="690" y="347" class="field">referencia</text>
+  <text x="576" y="433" class="field">contiene</text>
+</svg>

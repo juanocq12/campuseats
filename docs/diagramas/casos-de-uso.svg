@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama UML de casos de uso de CampusEats</title>
+  <desc id="desc">Actores Cliente y Administrador y sus interacciones con CampusEats.</desc>
+  <defs>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:25px;font-weight:bold}.actor{font-size:17px;font-weight:bold}.uc{fill:#fff;stroke:#2563eb;stroke-width:2}.label{font-size:15px}.line{stroke:#475569;stroke-width:2;fill:none}.system{fill:#f8fafc;stroke:#64748b;stroke-width:2}
+    </style>
+  </defs>
+  <rect width="1100" height="620" fill="#fff"/>
+  <text x="550" y="38" text-anchor="middle" class="title">CampusEats — Casos de uso</text>
+  <rect x="258" y="65" width="645" height="510" rx="12" class="system"/>
+  <text x="580" y="93" text-anchor="middle" class="actor">Sistema CampusEats</text>
+  <g class="line">
+    <path d="M140 190 L380 150 M140 215 L380 230 M140 240 L380 310 M140 265 L380 390 M140 290 L380 480"/>
+    <path d="M960 190 L780 230 M960 215 L780 310 M960 240 L780 390 M960 265 L780 480"/>
+  </g>
+  <g>
+    <rect x="380" y="122" width="400" height="56" rx="28" class="uc"/><text x="580" y="157" text-anchor="middle" class="label">Registrarse / iniciar sesión</text>
+    <rect x="380" y="202" width="400" height="56" rx="28" class="uc"/><text x="580" y="237" text-anchor="middle" class="label">Consultar y buscar productos</text>
+    <rect x="380" y="282" width="400" height="56" rx="28" class="uc"/><text x="580" y="317" text-anchor="middle" class="label">Crear pedido</text>
+    <rect x="380" y="362" width="400" height="56" rx="28" class="uc"/><text x="580" y="397" text-anchor="middle" class="label">Consultar pedidos propios</text>
+    <rect x="380" y="452" width="400" height="56" rx="28" class="uc"/><text x="580" y="487" text-anchor="middle" class="label">Administrar catálogo e inventario</text>
+    <rect x="380" y="512" width="400" height="50" rx="25" class="uc"/><text x="580" y="543" text-anchor="middle" class="label">Gestionar pedidos y ventas</text>
+  </g>
+  <g stroke="#172033" stroke-width="3" fill="none">
+    <circle cx="140" cy="140" r="18"/><path d="M140 158 V226 M108 183 H172 M140 226 L115 263 M140 226 L165 263"/>
+    <circle cx="960" cy="140" r="18"/><path d="M960 158 V226 M928 183 H992 M960 226 L935 263 M960 226 L985 263"/>
+  </g>
+  <text x="140" y="290" text-anchor="middle" class="actor">Cliente</text>
+  <text x="960" y="290" text-anchor="middle" class="actor">Administrador</text>
+</svg>

@@ -13,6 +13,8 @@ Este checklist se limita al proyecto académico CampusEats. El parcial práctico
 | 7 | Relaciones, seed repetible, pedidos con transacción y rollback, consultas, filtros/paginación, estados y reporte. | Implementado; las pruebas de integración comprueban concurrencia, rollback, permisos, lecturas, cambios de estado y reporte con PostgreSQL. |
 | 8 | Hash bcrypt, JWT, autenticación, roles y secretos en `.env`. | Registro/login, middleware JWT, roles `CLIENTE`/`ADMIN`, `.env.example` y rutas protegidas están incluidos. |
 
+Los ejercicios independientes de Node.js, API nativa y SQL de los talleres están en [`talleres/`](../talleres/README.md) y [`experimentos/`](../experimentos). La colección Postman también incluye las cinco solicitudes de diagnóstico HTTP de semana 1.
+
 ## Datos por configurar para una instalación nueva
 
 - Configurar las contraseñas locales del seed en `.env`; no deben subirse a GitHub.
@@ -22,5 +24,5 @@ Este checklist se limita al proyecto académico CampusEats. El parcial práctico
 
 - `npx prisma migrate status`: base local al día con las tres migraciones.
 - `npx prisma validate`: esquema válido.
-- `npm test`: ocho pruebas pasan, incluidas las pruebas contra PostgreSQL.
+- `npm test`: 14 pruebas pasan, incluidos los talleres de semanas 1 y 3 y las pruebas de integración SQL y PostgreSQL.
 - El seed no se reejecutó contra la base local para evitar restablecer las existencias y contraseñas de datos existentes.

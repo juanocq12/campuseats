@@ -12,6 +12,13 @@
 
 **Integrante:** Juan Manuel Correa Quiceno. El estudiante confirma que consultó con el profesor y tiene autorización para desarrollar el proyecto individualmente.
 
+Los diagramas exportados como imágenes están en [`diagramas/`](./diagramas/):
+
+- [Casos de uso](./diagramas/casos-de-uso.svg)
+- [Clases](./diagramas/clases.svg)
+- [Secuencia de crear pedido](./diagramas/secuencia.svg)
+- [Proceso BPMN](./diagramas/bpmn.svg); fuente BPMN 2.0: [pedido.bpmn](./diagramas/pedido.bpmn)
+
 ## Arquitectura
 
 El proyecto es un monolito modular organizado por capas:

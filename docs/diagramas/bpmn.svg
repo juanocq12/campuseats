@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="650" viewBox="0 0 1100 650" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama BPMN de creación de pedido de CampusEats</title>
+  <desc id="desc">Proceso con carriles Cliente, API y PostgreSQL, compuertas de validación e inventario, y caminos de éxito y error.</desc>
+  <defs>
+    <style>
+      text{font-family:Arial,sans-serif;fill:#172033}.title{font-size:24px;font-weight:bold}.lane{fill:#fff;stroke:#94a3b8;stroke-width:2}.lanehead{fill:#e2e8f0;stroke:#94a3b8;stroke-width:2}.activity{fill:#dbeafe;stroke:#2563eb;stroke-width:2}.gateway{fill:#fef3c7;stroke:#d97706;stroke-width:2}.event{fill:#dcfce7;stroke:#16a34a;stroke-width:3}.end{fill:#fee2e2;stroke:#dc2626;stroke-width:4}.label{font-size:14px}.laneName{font-size:15px;font-weight:bold}.flow{stroke:#334155;stroke-width:2.5;fill:none}.error{stroke:#dc2626;stroke-width:2.5;fill:none}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#334155"/></marker>
+    <marker id="badArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L9,3 L0,6 Z" fill="#dc2626"/></marker>
+  </defs>
+  <rect width="1100" height="650" fill="#fff"/>
+  <text x="550" y="38" text-anchor="middle" class="title">CampusEats — BPMN: crear pedido</text>
+  <rect x="30" y="70" width="1040" height="520" class="lane"/>
+  <rect x="30" y="70" width="145" height="150" class="lanehead"/>
+  <rect x="30" y="220" width="145" height="220" class="lanehead"/>
+  <rect x="30" y="440" width="145" height="150" class="lanehead"/>
+  <text x="102" y="151" text-anchor="middle" class="laneName">Cliente</text>
+  <text x="102" y="332" text-anchor="middle" class="laneName">API CampusEats</text>
+  <text x="102" y="521" text-anchor="middle" class="laneName">PostgreSQL</text>
+  <circle cx="220" cy="145" r="20" class="event"/>
+  <rect x="270" y="115" width="170" height="60" rx="12" class="activity"/>
+  <text x="355" y="140" text-anchor="middle" class="label">Enviar pedido</text><text x="355" y="159" text-anchor="middle" class="label">con items</text>
+  <rect x="470" y="275" width="175" height="60" rx="12" class="activity"/>
+  <text x="557" y="300" text-anchor="middle" class="label">Validar token</text><text x="557" y="319" text-anchor="middle" class="label">y datos de entrada</text>
+  <polygon points="700,270 735,305 700,340 665,305" class="gateway"/>
+  <text x="700" y="310" text-anchor="middle" class="label">?</text>
+  <rect x="810" y="235" width="190" height="62" rx="12" class="activity"/>
+  <text x="905" y="260" text-anchor="middle" class="label">Responder error</text><text x="905" y="281" text-anchor="middle" class="label">400 / 401</text>
+  <rect x="470" y="365" width="175" height="58" rx="12" class="activity"/>
+  <text x="557" y="389" text-anchor="middle" class="label">Reservar stock</text><text x="557" y="409" text-anchor="middle" class="label">de forma atómica</text>
+  <polygon points="700,360 735,395 700,430 665,395" class="gateway"/>
+  <text x="700" y="400" text-anchor="middle" class="label">?</text>
+  <rect x="810" y="350" width="190" height="58" rx="12" class="activity"/>
+  <text x="905" y="374" text-anchor="middle" class="label">Rollback</text><text x="905" y="394" text-anchor="middle" class="label">y responder 404 / 409</text>
+  <rect x="770" y="465" width="190" height="55" rx="12" class="activity"/>
+  <text x="865" y="488" text-anchor="middle" class="label">Guardar pedido</text><text x="865" y="507" text-anchor="middle" class="label">e ítems</text>
+  <circle cx="1015" cy="492" r="22" class="event"/>
+  <circle cx="1015" cy="492" r="16" fill="none" stroke="#16a34a" stroke-width="2"/>
+  <g class="flow" marker-end="url(#arrow)">
+    <path d="M240 145 H270"/><path d="M440 145 H450 V305 H470"/><path d="M645 305 H665"/>
+    <path d="M700 340 V365"/><path d="M645 395 H665"/><path d="M735 395 H770 V465"/>
+    <path d="M960 492 H993"/>
+  </g>
+  <g class="error" marker-end="url(#badArrow)">
+    <path d="M735 305 H810"/><path d="M735 395 H810"/>
+  </g>
+  <text x="747" y="293" class="label">No</text><text x="742" y="357" class="label">Sí</text>
+  <text x="744" y="382" class="label">No</text><text x="747" y="435" class="label">Sí</text>
+</svg>
