@@ -16,7 +16,7 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 - [Modelado del dominio y diagramas UML/BPMN](./docs/modelado.md), incluyendo casos de uso, clases, secuencia y el proceso BPMN 2.0.
 - [Diagramas UML y BPMN exportados como SVG](./docs/diagramas/).
 - [Checklist de revisión de semanas 1–8](./docs/avance-semanas-1-a-8.md).
-- [Talleres y prácticas de las semanas 1–8](./talleres/README.md), con guías específicas para las prácticas de semanas 5, 6 y 7.
+- [Talleres y prácticas de las semanas 1–8](./talleres/README.md), con guías específicas y bitácora de experimentos.
 - [Colección oficial de Postman](./docs/postman/CampusEats.postman_collection.json).
 - [Hito 1: dominio y diagramas](./docs/modelado.md#hito-1-dominio-y-alcance).
 - Hito 2: API por capas con CRUD de productos, pedidos transaccionales, seed, PostgreSQL/Prisma, filtros, paginación y reporte de ventas.

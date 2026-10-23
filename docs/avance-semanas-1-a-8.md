@@ -24,5 +24,5 @@ Los ejercicios independientes de Node.js, API nativa y SQL de los talleres está
 
 - `npx prisma migrate status`: base local al día con las tres migraciones.
 - `npx prisma validate`: esquema válido.
-- `npm test`: 14 pruebas pasan, incluidos los talleres de semanas 1 y 3 y las pruebas de integración SQL y PostgreSQL.
+- `npm test`: 15 pruebas pasan, incluidos los talleres de semanas 1 y 3, las pruebas de integración SQL/PostgreSQL y la validación de tokens alterados.
 - El seed no se reejecutó contra la base local para evitar restablecer las existencias y contraseñas de datos existentes.

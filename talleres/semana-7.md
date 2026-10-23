@@ -22,7 +22,7 @@ Inspecciona las migraciones en `prisma/migrations/` y encuentra sus `FOREIGN KEY
 
 ## 2. Sembrar datos repetibles
 
-El seed está configurado en [`prisma7.config.ts`](../prisma7.config.ts) y ejecuta upserts para dos usuarios y cinco productos:
+El seed está configurado en [`prisma.config.ts`](../prisma.config.ts) y ejecuta upserts para dos usuarios y cinco productos:
 
 ```bash
 npx prisma db seed
