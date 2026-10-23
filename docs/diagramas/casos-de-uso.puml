@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+actor Cliente
+actor Administrador
+rectangle CampusEats {
+  usecase "Registrarse" as UC_Registro
+  usecase "Iniciar sesión" as UC_Login
+  usecase "Consultar y buscar productos" as UC_Menu
+  usecase "Crear pedido" as UC_Pedido
+  usecase "Consultar pedidos propios" as UC_MisPedidos
+  usecase "Administrar productos e inventario" as UC_Catalogo
+  usecase "Actualizar estado de pedido" as UC_Estado
+  usecase "Consultar ventas del día" as UC_Ventas
+}
+Cliente --> UC_Registro
+Cliente --> UC_Login
+Cliente --> UC_Menu
+Cliente --> UC_Pedido
+Cliente --> UC_MisPedidos
+Administrador --> UC_Login
+Administrador --> UC_Catalogo
+Administrador --> UC_Estado
+Administrador --> UC_Ventas
+@enduml

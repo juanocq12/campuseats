@@ -3,7 +3,7 @@
 export async function listar(req, res, next) {
   try {
     res.json(await servicio.listar({
-      disponibles: req.query.disponibles === 'true',
+      disponibles: req.query.disponibles === undefined ? undefined : req.query.disponibles === 'true',
       buscar: typeof req.query.buscar === 'string' ? req.query.buscar : undefined,
     }));
   } catch (error) { next(error); }

@@ -1,0 +1,322 @@
+{
+  "info": {
+    "_postman_id": "610c9074-bfe0-4d78-bf41-3ab9a8f71ea0",
+    "name": "CampusEats API",
+    "description": "Colección oficial de prueba para CampusEats. Configura baseUrl, contraseñas de desarrollo y los IDs según el seed local. Los tokens se guardan automáticamente al iniciar sesión.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "clientEmail", "value": "ana@ucaldas.edu.co" },
+    { "key": "clientPassword", "value": "" },
+    { "key": "adminEmail", "value": "admin@campuseats.co" },
+    { "key": "adminPassword", "value": "" },
+    { "key": "clientToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "productId", "value": "1" },
+    { "key": "productoPruebaId", "value": "" },
+    { "key": "productName", "value": "" },
+    { "key": "pedidoId", "value": "1" },
+    { "key": "usuarioId", "value": "2" },
+    { "key": "fecha", "value": "2026-10-22" }
+  ],
+  "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Registrar cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Cliente de prueba\",\n  \"email\": \"cliente.prueba@example.com\",\n  \"password\": \"cambiar-esta-clave\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Registro correcto o email ya registrado', function () {",
+                  "  pm.expect([201, 409]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 201) {",
+                  "  pm.test('No expone passwordHash', function () { pm.expect(pm.response.json()).not.to.have.property('passwordHash'); });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión como cliente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{clientEmail}}\",\n  \"password\": \"{{clientPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login cliente correcto', function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('clientToken', data.token);",
+                  "pm.collectionVariables.set('usuarioId', String(data.usuario.id));",
+                  "pm.test('Respuesta no expone passwordHash', function () { pm.expect(data.usuario).not.to.have.property('passwordHash'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Iniciar sesión como administrador",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login administrador correcto', function () { pm.response.to.have.status(200); });",
+                  "const data = pm.response.json();",
+                  "pm.collectionVariables.set('adminToken', data.token);",
+                  "pm.test('Usuario autenticado tiene rol ADMIN', function () { pm.expect(data.usuario.rol).to.eql('ADMIN'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar mi perfil",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clientToken}}" }],
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "Listar productos disponibles",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/productos?disponibles=true&buscar="
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Lista de productos disponible', function () { pm.response.to.have.status(200); });",
+                  "const productos = pm.response.json();",
+                  "if (productos.length > 0) pm.collectionVariables.set('productId', String(productos[0].id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Consultar producto",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/productos/{{productId}}"
+          }
+        },
+        {
+          "name": "Crear producto (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{productName}}\",\n  \"precio\": 5000,\n  \"stock\": 10,\n  \"categoria\": \"Bebidas\",\n  \"descripcion\": \"Producto para pruebas\",\n  \"disponible\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/productos"
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.collectionVariables.set('productName', `Producto Postman ${pm.variables.replaceIn('{{$guid}}')}`);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Producto de prueba creado', function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set('productoPruebaId', String(pm.response.json().id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar producto (ADMIN)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{productName}}\",\n  \"precio\": 6000,\n  \"stock\": 10,\n  \"categoria\": \"Bebidas\",\n  \"descripcion\": \"Producto actualizado desde Postman\",\n  \"disponible\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}"
+          }
+        },
+        {
+          "name": "Ajustar inventario (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}/stock"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedidos",
+      "item": [
+        {
+          "name": "Crear pedido (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{clientToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"productoId\": {{productId}}, \"cantidad\": 1 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Pedido creado', function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) pm.collectionVariables.set('pedidoId', String(pm.response.json().id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar mis pedidos",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clientToken}}" }],
+            "url": "{{baseUrl}}/api/pedidos?pagina=1&limite=10"
+          }
+        },
+        {
+          "name": "Filtrar pedidos por estado (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/pedidos?estado=RECIBIDO&pagina=1&limite=10&usuarioId={{usuarioId}}"
+          }
+        },
+        {
+          "name": "Consultar pedido",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clientToken}}" }],
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}"
+          }
+        },
+        {
+          "name": "Cambiar estado del pedido (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PREPARANDO\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reportes",
+      "item": [
+        {
+          "name": "Ventas del día (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/reportes/ventas-dia?fecha={{fecha}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Limpieza opcional",
+      "item": [
+        {
+          "name": "Eliminar producto temporal (ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "url": "{{baseUrl}}/api/productos/{{productoPruebaId}}"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+  id="Definitions_CampusEats"
+  targetNamespace="https://campuseats.example/bpmn">
+  <bpmn:process id="Process_CrearPedido" name="Crear pedido de cafetería" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_CrearPedido">
+      <bpmn:lane id="Lane_Cliente" name="Cliente">
+        <bpmn:flowNodeRef>StartEvent_Inicio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnviarPedido</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_RespuestaError</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_PedidoCreado</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_API" name="API CampusEats">
+        <bpmn:flowNodeRef>Task_ValidarSolicitud</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_SolicitudValida</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ReservarInventario</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_StockDisponible</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResponderError</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_CrearPedido</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResponderCreado</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_BaseDatos" name="PostgreSQL">
+        <bpmn:flowNodeRef>Task_Transaccion</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Rollback</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Commit</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_Inicio" name="Necesita hacer un pedido"/>
+    <bpmn:task id="Task_EnviarPedido" name="Enviar productos y cantidades"/>
+    <bpmn:task id="Task_ValidarSolicitud" name="Verificar token y validar datos"/>
+    <bpmn:exclusiveGateway id="Gateway_SolicitudValida" name="¿Solicitud válida?"/>
+    <bpmn:task id="Task_Transaccion" name="Iniciar transacción"/>
+    <bpmn:task id="Task_ReservarInventario" name="Leer productos y reservar stock atómicamente"/>
+    <bpmn:exclusiveGateway id="Gateway_StockDisponible" name="¿Todos los productos disponibles?"/>
+    <bpmn:task id="Task_Rollback" name="Revertir cambios"/>
+    <bpmn:task id="Task_ResponderError" name="Responder 400, 401, 404 o 409"/>
+    <bpmn:task id="Task_CrearPedido" name="Crear pedido y sus ítems"/>
+    <bpmn:task id="Task_Commit" name="Confirmar transacción"/>
+    <bpmn:task id="Task_ResponderCreado" name="Responder 201 Created"/>
+    <bpmn:endEvent id="EndEvent_RespuestaError" name="Pedido rechazado sin cambios parciales"/>
+    <bpmn:endEvent id="EndEvent_PedidoCreado" name="Pedido creado"/>
+    <bpmn:sequenceFlow id="Flow_01" sourceRef="StartEvent_Inicio" targetRef="Task_EnviarPedido"/>
+    <bpmn:sequenceFlow id="Flow_02" sourceRef="Task_EnviarPedido" targetRef="Task_ValidarSolicitud"/>
+    <bpmn:sequenceFlow id="Flow_03" sourceRef="Task_ValidarSolicitud" targetRef="Gateway_SolicitudValida"/>
+    <bpmn:sequenceFlow id="Flow_04" name="No" sourceRef="Gateway_SolicitudValida" targetRef="Task_ResponderError"/>
+    <bpmn:sequenceFlow id="Flow_05" name="Sí" sourceRef="Gateway_SolicitudValida" targetRef="Task_Transaccion"/>
+    <bpmn:sequenceFlow id="Flow_06" sourceRef="Task_Transaccion" targetRef="Task_ReservarInventario"/>
+    <bpmn:sequenceFlow id="Flow_07" sourceRef="Task_ReservarInventario" targetRef="Gateway_StockDisponible"/>
+    <bpmn:sequenceFlow id="Flow_08" name="No" sourceRef="Gateway_StockDisponible" targetRef="Task_Rollback"/>
+    <bpmn:sequenceFlow id="Flow_09" sourceRef="Task_Rollback" targetRef="Task_ResponderError"/>
+    <bpmn:sequenceFlow id="Flow_10" name="Sí" sourceRef="Gateway_StockDisponible" targetRef="Task_CrearPedido"/>
+    <bpmn:sequenceFlow id="Flow_11" sourceRef="Task_CrearPedido" targetRef="Task_Commit"/>
+    <bpmn:sequenceFlow id="Flow_12" sourceRef="Task_Commit" targetRef="Task_ResponderCreado"/>
+    <bpmn:sequenceFlow id="Flow_13" sourceRef="Task_ResponderError" targetRef="EndEvent_RespuestaError"/>
+    <bpmn:sequenceFlow id="Flow_14" sourceRef="Task_ResponderCreado" targetRef="EndEvent_PedidoCreado"/>
+  </bpmn:process>
+</bpmn:definitions>
