@@ -59,7 +59,7 @@ La aplicación de CampusEats organiza rutas, controladores y servicios bajo `src
 La [comparación REST existente](./semana-5-rest.md) describe por qué CampusEats acepta JSON y no habilita XML o multipart sin necesidad. La colección Postman permite probar la API. En una base local de desarrollo:
 
 1. Envía un mismo objeto como JSON y como `text/plain`; registra el `req.body` y el resultado HTTP. No cambies la ruta de producción: usa Postman, un test temporal o una copia local.
-2. Prueba datos inválidos, un ID inexistente, un ID no numérico y un nombre duplicado. Registra el código HTTP de cada caso.
+2. En la colección Postman, ejecuta `Error 400: producto con nombre vacío (ADMIN)` y `Error 400: producto con precio negativo (ADMIN)`. Después prueba un ID inexistente, un ID no numérico y un nombre duplicado. Registra el estado y el mensaje que realmente recibiste; las solicitudes de nombre vacío y precio negativo esperan `400`.
 3. Repite tres veces un PUT de los mismos datos y un PATCH que descuenta una unidad. Consulta el recurso después de cada solicitud y compara el estado final.
 4. Revisa las validaciones existentes. Si quieres observar datos sin validar, hazlo únicamente en una copia descartable, sin persistencia y sin acceso público.
 5. Revisa cómo responde el manejador de errores en desarrollo y producción. No introduzcas un error deliberado en un servidor accesible desde internet.
