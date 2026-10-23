@@ -119,5 +119,6 @@ Para cada actividad que hayas ejecutado, copia y completa una fila en tu cuadern
 | --- | --- | --- | --- | --- |
 | | | | | |
 | Pruebas automatizadas | No aplica | Ejecuté `npm test` en Windows el 22-10-2026. | 15 aprobadas, 0 fallidas; duración aproximada de 2,8 segundos. | La suite verifica el comportamiento automatizado del proyecto; no sustituye las observaciones personales de los experimentos. |
+| Autenticación — prueba automatizada | No aplica | Ejecuté `npm test -- tests/autenticacion.test.js` en Windows el 22-10-2026. | 6 aprobadas, 0 fallidas; duración aproximada de 250 ms. Se comprobaron ausencia de token, JWT válido, vencido y alterado, y permisos de rol. | Las pruebas automatizadas verifican esos casos del middleware; no reemplazan una prueba manual de la API en Postman. |
 
 No rellenes resultados de medición o predicciones retrospectivamente como si se hubieran hecho antes: separa claramente lo que observaste ahora de lo que ya estaba implementado y probado en el proyecto.
