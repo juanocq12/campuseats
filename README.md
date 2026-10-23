@@ -124,6 +124,32 @@ Authorization: Bearer <token>
 | `PATCH` | `/api/pedidos/:id/estado` | `ADMIN` | Cambia el estado respetando las transiciones del negocio |
 | `GET` | `/api/reportes/ventas-dia` | `ADMIN` | Resume pedidos no cancelados y unidades por producto; acepta `?fecha=AAAA-MM-DD` (UTC) |
 
+### Política de acceso por endpoint y rol
+
+`Público` indica que no se requiere iniciar sesión. `Sí` indica acceso permitido; `No` indica acceso denegado. Para los pedidos de un cliente, el servidor limita las consultas a la identidad autenticada: nunca toma el propietario desde un parámetro enviado por el cliente.
+
+| Endpoint | Público | `CLIENTE` | `ADMIN` | Regla de acceso |
+| --- | --- | --- | --- | --- |
+| `POST /api/auth/register` | Sí | Sí | Sí | El registro público siempre asigna el rol `CLIENTE`. |
+| `POST /api/auth/login` | Sí | Sí | Sí | Emite un JWT después de validar las credenciales. |
+| `GET /api/auth/me` | No | Sí | Sí | Devuelve el perfil de la identidad del token. |
+| `GET /api/productos` | Sí | Sí | Sí | Consulta de catálogo. |
+| `GET /api/productos/:id` | Sí | Sí | Sí | Consulta de producto. |
+| `POST /api/productos` | No | No | Sí | Administración del catálogo. |
+| `PUT /api/productos/:id` | No | No | Sí | Administración del catálogo. |
+| `PATCH /api/productos/:id/stock` | No | No | Sí | Administración del inventario. |
+| `DELETE /api/productos/:id` | No | No | Sí | Administración del catálogo. |
+| `GET /api/usuarios` | No | No | Sí | Lista perfiles públicos; nunca incluye `passwordHash`. |
+| `GET /api/usuarios/:id` | No | No | Sí | Consulta un perfil público; nunca incluye `passwordHash`. |
+| `POST /api/usuarios` | No | No | Sí | Crea un cliente y almacena su contraseña con bcrypt. |
+| `POST /api/pedidos` | No | Sí | Sí | Crea el pedido para `req.usuario.id`; ignora cualquier propietario indicado en el body. |
+| `GET /api/pedidos` | No | Sí | Sí | `CLIENTE` solo lista sus pedidos (`req.usuario.id`); `ADMIN` puede filtrar por `usuarioId`. |
+| `GET /api/pedidos/:id` | No | Sí* | Sí | `CLIENTE` solo consulta pedidos propios; `ADMIN` puede consultar cualquiera. |
+| `PATCH /api/pedidos/:id/estado` | No | No | Sí | Solo administración puede cambiar estados. |
+| `GET /api/reportes/ventas-dia` | No | No | Sí | Solo administración puede consultar el reporte. |
+
+`*` Para `CLIENTE`, si el pedido existe pero pertenece a otra persona, la API responde como si no existiera (`404`).
+
 Ejemplo de pedido:
 
 ```json
