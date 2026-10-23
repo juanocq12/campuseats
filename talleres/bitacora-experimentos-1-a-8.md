@@ -120,3 +120,5 @@ Para cada actividad que hayas ejecutado, copia y completa una fila en tu cuadern
 | | | | | |
 
 No rellenes resultados de medición o predicciones retrospectivamente como si se hubieran hecho antes: separa claramente lo que observaste ahora de lo que ya estaba implementado y probado en el proyecto.
+
+| Pruebas automatizadas | No aplica | Ejecuté `npm test` en Windows el 22-10-2026. | 15 aprobadas, 0 fallidas; duración aproximada de 2,8 segundos. | La suite verifica el comportamiento automatizado del proyecto; no sustituye las observaciones personales de los experimentos. |
