@@ -159,19 +159,39 @@ export async function obtenerReporteVentasDia(fecha) {
   }
   const fin = new Date(inicio);
   fin.setUTCDate(fin.getUTCDate() + 1);
-
-  const resumen = await prisma.pedido.aggregate({
-    where: {
-      estado: 'ENTREGADO',
-      creadoEn: { gte: inicio, lt: fin },
-    },
-    _count: { _all: true },
-    _sum: { total: true },
-  });
-
-  return {
-    fecha,
-    pedidosEntregados: resumen._count._all,
-    ventasTotales: resumen._sum.total ?? 0,
+  const where = {
+    estado: { not: 'CANCELADO' },
+    creadoEn: { gte: inicio, lt: fin },
   };
+
+  return prisma.$transaction(async (tx) => {
+    const resumen = await tx.pedido.aggregate({
+      where,
+      _count: { _all: true },
+      _sum: { total: true },
+    });
+    const unidadesAgrupadas = await tx.pedidoItem.groupBy({
+      by: ['productoId'],
+      where: { pedido: where },
+      _sum: { cantidad: true },
+      orderBy: { productoId: 'asc' },
+    });
+    const productos = await tx.producto.findMany({
+      where: { id: { in: unidadesAgrupadas.map(({ productoId }) => productoId) } },
+      select: { id: true, nombre: true },
+    });
+    const nombresPorId = new Map(productos.map(({ id, nombre }) => [id, nombre]));
+    const unidadesPorProducto = unidadesAgrupadas.map(({ productoId, _sum }) => {
+      const nombre = nombresPorId.get(productoId);
+      if (!nombre) throw new Error(`No se encontró el producto ${productoId} del reporte`);
+      return { productoId, nombre, unidades: _sum.cantidad ?? 0 };
+    });
+
+    return {
+      fecha,
+      totalVendido: resumen._sum.total ?? 0,
+      pedidos: resumen._count._all,
+      unidadesPorProducto,
+    };
+  });
 }

@@ -16,7 +16,7 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 - [Modelado del dominio y diagramas UML/BPMN](./docs/modelado.md), incluyendo casos de uso, clases, secuencia y el proceso BPMN 2.0.
 - [Diagramas UML y BPMN exportados como SVG](./docs/diagramas/).
 - [Checklist de revisión de semanas 1–8](./docs/avance-semanas-1-a-8.md).
-- [Talleres y prácticas de las semanas 1–8](./talleres/README.md), con los ejercicios independientes de Node/HTTP de semana 1 y API nativa de semana 3.
+- [Talleres y prácticas de las semanas 1–8](./talleres/README.md), con guías específicas para las prácticas de semanas 5, 6 y 7.
 - [Colección oficial de Postman](./postman/CampusEats.postman_collection.json).
 - [Hito 1: dominio y diagramas](./docs/modelado.md#hito-1-dominio-y-alcance).
 - Hito 2: API por capas con CRUD de productos, pedidos transaccionales, seed, PostgreSQL/Prisma, filtros, paginación y reporte de ventas.
@@ -114,7 +114,7 @@ Authorization: Bearer <token>
 | `GET` | `/api/pedidos` | Autenticado | Lista pedidos propios; `ADMIN` puede filtrar por `estado`, `usuarioId`, `pagina` y `limite` |
 | `GET` | `/api/pedidos/:id` | Autenticado | Consulta un pedido propio; `ADMIN` puede consultar cualquiera |
 | `PATCH` | `/api/pedidos/:id/estado` | `ADMIN` | Cambia el estado respetando las transiciones del negocio |
-| `GET` | `/api/reportes/ventas-dia` | `ADMIN` | Resume pedidos entregados; acepta `?fecha=AAAA-MM-DD` (UTC) |
+| `GET` | `/api/reportes/ventas-dia` | `ADMIN` | Resume pedidos no cancelados y unidades por producto; acepta `?fecha=AAAA-MM-DD` (UTC) |
 
 Ejemplo de pedido:
 
@@ -131,7 +131,7 @@ El servidor calcula el total y descuenta el inventario dentro de una transacció
 
 Los estados permitidos son `RECIBIDO -> PREPARANDO -> LISTO -> ENTREGADO`; se puede cancelar desde `RECIBIDO` o `PREPARANDO`. Al cancelar, el inventario se devuelve en la misma transacción. Las transiciones no permitidas responden `409`.
 
-La colección Postman incluye las solicitudes de autenticación, productos, pedidos y reporte. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. El grupo “Limpieza opcional” borra únicamente el producto temporal creado por la colección. No guardes contraseñas reales en la colección.
+La colección Postman incluye las solicitudes de autenticación, productos, pedidos, errores del taller de semana 7 y reporte. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. El grupo “Limpieza opcional” borra únicamente el producto temporal creado por la colección. No guardes contraseñas reales en la colección.
 
 ## Pruebas
 

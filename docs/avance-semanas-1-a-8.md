@@ -10,7 +10,7 @@ Este checklist se limita al proyecto académico CampusEats. El parcial práctico
 | 4 | Express, middleware, rutas y arquitectura en capas. | Rutas, controladores, servicios, Morgan, errores y scripts npm están en el proyecto. |
 | 5 | REST, validación, estados HTTP, errores y colección de Postman. | Endpoints REST, validaciones, errores centralizados y [colección Postman](../postman/CampusEats.postman_collection.json) están incluidos. |
 | 6 | PostgreSQL, Prisma, modelos, migraciones y control de inventario. | Esquema, tres migraciones y persistencia PostgreSQL están incluidos; el descuento de inventario es atómico. |
-| 7 | Relaciones, seed repetible, pedidos con transacción y rollback, consultas, filtros/paginación, estados y reporte. | Implementado; las pruebas de integración comprueban concurrencia, rollback, permisos, lecturas, cambios de estado y reporte con PostgreSQL. |
+| 7 | Relaciones, seed repetible, pedidos con transacción y rollback, consultas, filtros/paginación, estados y reporte diario (total, pedidos no cancelados y unidades por producto). | Implementado y documentado en [`talleres/semana-7.md`](../talleres/semana-7.md); las pruebas de PostgreSQL comprueban 13 pedidos aceptados de 20 concurrentes, rollback y exclusión de pedidos cancelados en el reporte. |
 | 8 | Hash bcrypt, JWT, autenticación, roles y secretos en `.env`. | Registro/login, middleware JWT, roles `CLIENTE`/`ADMIN`, `.env.example` y rutas protegidas están incluidos. |
 
 Los ejercicios independientes de Node.js, API nativa y SQL de los talleres están en [`talleres/`](../talleres/README.md) y [`experimentos/`](../experimentos). La colección Postman también incluye las cinco solicitudes de diagnóstico HTTP de semana 1.

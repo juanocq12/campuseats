@@ -70,7 +70,7 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       data: {
         nombre: `Prueba de concurrencia ${sufijo}`,
         precio: 100,
-        stock: 10,
+        stock: 40,
         categoria: 'Pruebas',
       },
       select: { id: true },
@@ -176,15 +176,15 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       Array.from({ length: 20 }, () => peticion('/api/pedidos', {
         method: 'POST',
         token: clientToken,
-        body: { items: [{ productoId: productoPrincipal.id, cantidad: 1 }] },
+        body: { items: [{ productoId: productoPrincipal.id, cantidad: 3 }] },
       }))
     );
     const creadas = ventasConcurrentes.filter(({ status }) => status === 201);
     const conflictos = ventasConcurrentes.filter(({ status }) => status === 409);
-    assert.equal(creadas.length, 10);
-    assert.equal(conflictos.length, 10);
+    assert.equal(creadas.length, 13);
+    assert.equal(conflictos.length, 7);
     assert.equal(ventasConcurrentes.filter(({ status }) => status !== 201 && status !== 409).length, 0);
-    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 0);
+    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 1);
     const productoConPedidos = await peticion(`/api/productos/${productoPrincipal.id}`, {
       method: 'DELETE',
       token: adminToken,
@@ -194,7 +194,7 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
     const lista = await peticion('/api/pedidos?pagina=1&limite=2', { token: clientToken });
     assert.equal(lista.status, 200);
     assert.equal(lista.data.datos.length, 2);
-    assert.equal(lista.data.paginacion.total, 10);
+    assert.equal(lista.data.paginacion.total, 13);
     assert.equal('passwordHash' in lista.data.datos[0].usuario, false);
 
     const pedidoPropio = creadas[0].data;
@@ -225,13 +225,6 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
     });
     assert.equal(estadoTerminal.status, 409);
 
-    const reporteComoCliente = await peticion('/api/reportes/ventas-dia', { token: clientToken });
-    assert.equal(reporteComoCliente.status, 403);
-    const reporte = await peticion('/api/reportes/ventas-dia', { token: adminToken });
-    assert.equal(reporte.status, 200);
-    assert.equal(reporte.data.pedidosEntregados, 1);
-    assert.equal(reporte.data.ventasTotales, 100);
-
     const pedidoCancelado = creadas.find(({ data }) => data.id !== pedidoPropio.id);
     const cancelacion = await peticion(`/api/pedidos/${pedidoCancelado.data.id}/estado`, {
       method: 'PATCH',
@@ -239,7 +232,19 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       body: { estado: 'CANCELADO' },
     });
     assert.equal(cancelacion.status, 200);
-    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 1);
+    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 4);
+
+    const reporteComoCliente = await peticion('/api/reportes/ventas-dia', { token: clientToken });
+    assert.equal(reporteComoCliente.status, 403);
+    const reporte = await peticion('/api/reportes/ventas-dia', { token: adminToken });
+    assert.equal(reporte.status, 200);
+    assert.equal(reporte.data.pedidos, 12);
+    assert.equal(reporte.data.totalVendido, 3600);
+    assert.deepEqual(reporte.data.unidadesPorProducto, [{
+      productoId: productoPrincipal.id,
+      nombre: `Prueba de concurrencia ${sufijo}`,
+      unidades: 36,
+    }]);
 
     const rollback = await peticion('/api/pedidos', {
       method: 'POST',
@@ -252,7 +257,7 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
       },
     });
     assert.equal(rollback.status, 409);
-    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 1);
+    assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 4);
     assert.equal((await prisma.producto.findUnique({ where: { id: productoSecundario.id } })).stock, 1);
 
     const carreraFinal = await Promise.all(
@@ -262,8 +267,8 @@ test('flujo CampusEats con PostgreSQL: auth, pedidos, permisos, concurrencia y r
         body: { items: [{ productoId: productoPrincipal.id, cantidad: 1 }] },
       }))
     );
-    assert.equal(carreraFinal.filter(({ status }) => status === 201).length, 1);
-    assert.equal(carreraFinal.filter(({ status }) => status === 409).length, 19);
+    assert.equal(carreraFinal.filter(({ status }) => status === 201).length, 4);
+    assert.equal(carreraFinal.filter(({ status }) => status === 409).length, 16);
     assert.equal((await prisma.producto.findUnique({ where: { id: productoPrincipal.id } })).stock, 0);
   } finally {
     if (server?.listening) {

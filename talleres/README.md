@@ -10,7 +10,7 @@ Este índice separa los ejercicios cortos de clase del proyecto principal. Se ej
 | 4 | La migración de API nativa a Express queda representada por la aplicación principal en `src/routes`, `src/controllers` y `src/services`. | Comparar la API aislada de semana 3 con `npm run dev` en la raíz del proyecto. |
 | 5 | Validación REST, errores, CRUD, filtro y PATCH de inventario en la API principal; Postman incluye JSON y colección HTTP. | Importar [`CampusEats.postman_collection.json`](../postman/CampusEats.postman_collection.json). La comparación de JSON/XML/form-data está documentada en [`semana-5-rest.md`](./semana-5-rest.md). |
 | 6 | Preparación y nueve consultas SQL en [`semana-6/`](./semana-6/). | Revisa primero los retos; las soluciones están en archivo separado. Solo usan el esquema `campuseats_practica`, separado de las tablas del proyecto. |
-| 7 | Relaciones Prisma, seed, pedidos transaccionales, rollback, concurrencia, consulta paginada, estados y reporte. | `npm test` ejecuta los casos de PostgreSQL si están configurados `DATABASE_URL` y `JWT_SECRET`. |
+| 7 | Taller guiado de relaciones Prisma, seed repetible, transacciones y rollback, concurrencia, consultas, estados y reporte. | Sigue [`semana-7.md`](./semana-7.md); `npm test` verifica el caso exacto de 20 pedidos concurrentes de 3 unidades con stock 40. |
 | 8 | Registro bcrypt, JWT y roles CLIENTE/ADMIN en `src/routes/auth.routes.js` y `src/middlewares/autenticacion.js`. | Importar y probar las solicitudes del grupo “Autenticación” en Postman. El parcial individual de biblioteca no pertenece a estos talleres de CampusEats. |
 
 ## Pruebas de los talleres Node

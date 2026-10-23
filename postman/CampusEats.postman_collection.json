@@ -350,6 +350,146 @@
             },
             "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
           }
+        },
+        {
+          "name": "Preparar pedido entregable (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"LISTO\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        },
+        {
+          "name": "Entregar pedido (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"ENTREGADO\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        },
+        {
+          "name": "Error 409: cambiar pedido entregado (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estado\": \"PREPARANDO\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Un pedido entregado no puede volver a preparación (409)', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 400: crear pedido sin ítems (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": []\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Un pedido sin ítems responde 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 404: producto inexistente (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"productoId\": 2147483647, \"cantidad\": 1 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Un producto inexistente responde 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Error 409: stock insuficiente (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "******" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"productoId\": {{productId}}, \"cantidad\": 2147483647 }\n  ]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('El stock insuficiente responde 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -362,7 +502,25 @@
             "method": "GET",
             "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
             "url": "{{baseUrl}}/api/reportes/ventas-dia?fecha={{fecha}}"
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte contiene total, pedidos y unidades por producto', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const reporte = pm.response.json();",
+                  "  pm.expect(reporte).to.have.property('fecha');",
+                  "  pm.expect(reporte).to.have.property('totalVendido');",
+                  "  pm.expect(reporte).to.have.property('pedidos');",
+                  "  pm.expect(reporte.unidadesPorProducto).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
