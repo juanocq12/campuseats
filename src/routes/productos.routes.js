@@ -4,7 +4,7 @@ import { body, param, query } from 'express-validator';
 import * as controlador from '../controllers/productos.controller.js';
 import { autenticar, requerirRol } from '../middlewares/autenticacion.js';
 import { validar } from '../middlewares/validar.js';
-
+import { subirImagen } from '../middlewares/subirImagen.js';
 const router = Router();
 
 const reglaId = param('id').isInt({ min: 1, max: 2147483647 }).withMessage('El id debe ser un entero positivo');
@@ -33,6 +33,21 @@ router.get(
   controlador.listar
 );
 router.get('/:id', reglaId, validar, controlador.obtener);
+router.get(
+  '/:id/precio-usd',
+  reglaId,
+  validar,
+  controlador.precioUsd
+);
+router.post(
+  '/:id/imagen',
+  autenticar,
+  requerirRol('ADMIN'),
+  reglaId,
+  validar,
+  subirImagen.single('imagen'),
+  controlador.subirFoto
+);
 router.post('/', autenticar, requerirRol('ADMIN'), reglasProducto, validar, controlador.crear);
 router.put('/:id', autenticar, requerirRol('ADMIN'), reglaId, reglasProducto, validar, controlador.actualizar);
 router.patch(

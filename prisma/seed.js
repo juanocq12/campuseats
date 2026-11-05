@@ -34,12 +34,13 @@ async function main() {
 
   await prisma.usuario.upsert({
     where: { email: 'ana@ucaldas.edu.co' },
-    update: { passwordHash: hashCliente, rol: 'CLIENTE' },
+    update: { passwordHash: hashCliente, rol: 'CLIENTE', telefono: '+573001234567' },
     create: {
       nombre: 'Ana Estudiante',
       email: 'ana@ucaldas.edu.co',
       passwordHash: hashCliente,
       rol: 'CLIENTE',
+      telefono: '+573001234567',
     },
   });
 

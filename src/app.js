@@ -7,11 +7,13 @@ import pedidosRouter from './routes/pedidos.routes.js';
 import reportesRouter from './routes/reportes.routes.js';
 import usuariosRouter from './routes/usuarios.routes.js';
 import { manejadorErrores } from './middlewares/errores.js';
-
+import { fileURLToPath } from 'node:url';
 const app = express();
 
 app.use(morgan('dev'));
 app.use(express.json());
+app.use('/imagenes/productos', express.static(fileURLToPath(new URL('../uploads/productos/', import.meta.url))));
+app.use(express.static(fileURLToPath(new URL('../public/', import.meta.url))));
 
 app.get('/', (req, res) => res.json({ nombre: 'CampusEats API', version: '1.0' }));
 app.use('/api/auth', authRouter);

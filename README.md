@@ -1,6 +1,6 @@
 # CampusEats
 
-API para pedidos de comida del campus, construida progresivamente con los temas de Programación Web 2 de las semanas 1 a 8.
+API para pedidos de comida del campus, construida progresivamente con los temas de Programación Web 2 de las semanas 1 a 9.
 
 ## Tecnologías y temas
 
@@ -10,6 +10,8 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 - Productos, usuarios, pedidos y detalle de pedido.
 - Pedidos transaccionales con control de stock.
 - Autenticación con bcrypt y JWT; autorización por roles `CLIENTE` y `ADMIN`.
+- Semana 9: correo transaccional, carga de fotos, SMS con proveedor intercambiable y conversión COP/USD con timeout.
+- Semana 10: Socket.IO autenticado con JWT, salas privadas por usuario y rol, y eventos de pedidos en tiempo real.
 
 ## Entregables del proyecto
 
@@ -21,6 +23,19 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 - [Hito 1: dominio y diagramas](./docs/modelado.md#hito-1-dominio-y-alcance).
 - Hito 2: API por capas con CRUD de productos, pedidos transaccionales, seed, PostgreSQL/Prisma, filtros, paginación y reporte de ventas.
 - Semana 8: registro/login, hash bcrypt, JWT y permisos por rol.
+- Semana 10: demo REST + Socket.IO en [`public/demo-tiempo-real.html`](./public/demo-tiempo-real.html).
+
+## Tiempo real (Semana 10)
+
+El servidor HTTP de Express comparte puerto con Socket.IO. Cada conexión envía su JWT en `auth.token`; el servidor verifica firma, expiración e identidad y la incorpora únicamente a `usuario:<id>` y `rol:<rol>`. El cliente no puede elegir salas. Los eventos son:
+
+| Evento | Destino | Cuándo |
+| --- | --- | --- |
+| `pedido:creado` | `rol:ADMIN` | Se crea un pedido. |
+| `pedido:estado` | `usuario:<id>` del propietario | Cambia el estado de su pedido. |
+| `pedido:actualizado` | `rol:ADMIN` | Cambia el estado de un pedido. |
+
+Con la API iniciada, abre `http://localhost:3000/demo-tiempo-real.html`, pega el JWT y el ID de un pedido. La página consulta primero `GET /api/pedidos/:id`; después abre Socket.IO y refleja los cambios sin recargar. Usa un token de ADMIN para observar los eventos dirigidos a su sala de rol. Para la demo de privacidad, conecta a Ana, Beto y ADMIN en ventanas separadas y cambia el estado de un pedido de Ana.
 
 ## Requisitos
 
@@ -30,7 +45,8 @@ API para pedidos de comida del campus, construida progresivamente con los temas 
 ## Configuración y arranque
 
 1. Copia `.env.example` como `.env` y configura `DATABASE_URL`, un `JWT_SECRET` aleatorio de al menos 32 caracteres, `SEED_ADMIN_PASSWORD` y `SEED_CLIENT_PASSWORD`. Las contraseñas de desarrollo del seed deben tener entre 8 y 72 bytes. Puedes generar el secreto con `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`.
-2. Inicia el contenedor existente de PostgreSQL:
+2. Para correo de prueba, agrega las credenciales de Ethereal a `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` y `SMTP_PASS`. Sin credenciales, los pedidos siguen creándose y el error del correo queda en la consola. Para SMS local deja `SMS_PROVEEDOR=simulado`; Twilio es opcional y requiere `SMS_PROVEEDOR=twilio`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` y `TWILIO_FROM`.
+3. Inicia el contenedor existente de PostgreSQL:
 
 ```bash
 docker start campuseats-db
@@ -42,7 +58,7 @@ Si aún no existe, crea uno con la misma configuración de `.env.example`:
 docker run --name campuseats-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=campuseats -p 5433:5432 -d postgres:17-alpine
 ```
 
-3. Instala dependencias y prepara la base:
+4. Instala dependencias y prepara la base:
 
 ```bash
 npm install
@@ -114,6 +130,8 @@ Authorization: Bearer <token>
 | --- | --- | --- | --- |
 | `GET` | `/api/productos` | Público | Lista productos; admite `?disponibles=true` y `?buscar=texto` |
 | `GET` | `/api/productos/:id` | Público | Consulta un producto |
+| `GET` | `/api/productos/:id/precio-usd` | Público | Consulta el precio en COP y su conversión a USD; si la API de tasas falla, devuelve `usd: null` |
+| `POST` | `/api/productos/:id/imagen` | `ADMIN` | Recibe una imagen JPG, PNG o WebP de hasta 2 MB en form-data con el campo `imagen` |
 | `POST` | `/api/productos` | `ADMIN` | Crea un producto |
 | `PUT` | `/api/productos/:id` | `ADMIN` | Actualiza un producto |
 | `PATCH` | `/api/productos/:id/stock` | `ADMIN` | Ajusta el inventario |
@@ -165,7 +183,7 @@ El servidor calcula el total y descuenta el inventario dentro de una transacció
 
 Los estados permitidos son `RECIBIDO -> PREPARANDO -> LISTO -> ENTREGADO`; se puede cancelar desde `RECIBIDO` o `PREPARANDO`. Al cancelar, el inventario se devuelve en la misma transacción. Las transiciones no permitidas responden `409`.
 
-La colección Postman incluye las solicitudes de autenticación, usuarios, productos, pedidos, errores del taller de semana 7 y reporte. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. No guardes contraseñas reales en la colección.
+La colección Postman incluye las solicitudes de autenticación, usuarios, productos, pedidos, reporte y servicios externos de la semana 9. Después de configurar `.env` y ejecutar el seed, importa la colección, completa `clientPassword` y `adminPassword` con las mismas contraseñas de desarrollo, inicia sesión con los dos usuarios para cargar `clientToken` y `adminToken`, y ejecuta las solicitudes del grupo correspondiente. Para subir una foto, selecciona un archivo en el campo form-data `imagen`. No guardes contraseñas reales en la colección.
 
 ## Pruebas
 
@@ -177,4 +195,4 @@ Las pruebas de integración con PostgreSQL se ejecutan cuando están configurado
 
 ## Alcance académico
 
-El repositorio documenta los hitos de modelado y API del proyecto CampusEats y la autenticación vista en semana 8. El parcial práctico de biblioteca es un ejercicio individual separado y no forma parte de este proyecto.
+El repositorio documenta los hitos de modelado y API del proyecto CampusEats hasta la semana 9. El parcial práctico de biblioteca es un ejercicio individual separado y no forma parte de este proyecto.

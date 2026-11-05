@@ -1,4 +1,7 @@
+import { enviarConfirmacionPedido } from './email.service.js';
 import { prisma } from '../db.js';
+import { enviarSms } from './sms/index.js';
+import { emitirEstadoPedido, emitirPedidoCreado } from '../tiempo-real.js';
 import { conflicto, datosInvalidos, noEncontrado } from '../errores.js';
 import { esTransicionPedidoValida } from './pedidos.transitions.js';
 
@@ -21,7 +24,7 @@ const seleccionPedido = {
 };
 
 export async function crearPedido(usuarioId, items) {
-  return prisma.$transaction(async (tx) => {
+  const pedido = await prisma.$transaction(async (tx) => {
     const usuario = await tx.usuario.findUnique({ where: { id: usuarioId } });
     if (!usuario) throw noEncontrado(`Usuario ${usuarioId} no existe`);
 
@@ -68,6 +71,13 @@ export async function crearPedido(usuarioId, items) {
       select: seleccionPedido,
     });
   }, { maxWait: 10000, timeout: 15000 });
+
+  enviarConfirmacionPedido(pedido.usuario.email, pedido).catch((err) => {
+    console.error('No se pudo enviar el email de confirmación:', err.message || err.code);
+  });
+  emitirPedidoCreado(pedido);
+
+  return pedido;
 }
 
 export async function listarPedidos({
@@ -123,10 +133,15 @@ export async function cambiarEstadoPedido(id, siguiente) {
     throw datosInvalidos('Estado de pedido inválido');
   }
 
-  return prisma.$transaction(async (tx) => {
+  const resultado = await prisma.$transaction(async (tx) => {
     const pedido = await tx.pedido.findUnique({
       where: { id },
-      select: { id: true, estado: true, items: { select: { productoId: true, cantidad: true } } },
+      select: {
+        id: true,
+        estado: true,
+        usuario: { select: { telefono: true } },
+        items: { select: { productoId: true, cantidad: true } },
+      },
     });
     if (!pedido) throw noEncontrado('Pedido no encontrado');
     if (!esTransicionPedidoValida(pedido.estado, siguiente)) {
@@ -148,8 +163,19 @@ export async function cambiarEstadoPedido(id, siguiente) {
       }
     }
 
-    return tx.pedido.findUnique({ where: { id }, select: seleccionPedido });
+    return {
+      pedido: await tx.pedido.findUnique({ where: { id }, select: seleccionPedido }),
+      telefono: pedido.usuario.telefono,
+    };
   });
+
+  if (siguiente === 'LISTO' && resultado.telefono) {
+    enviarSms(resultado.telefono, `CampusEats: tu pedido #${id} está listo para recoger`)
+      .catch((err) => console.error('No se pudo enviar el SMS:', err.message || err.code));
+  }
+  emitirEstadoPedido(resultado.pedido);
+
+  return resultado.pedido;
 }
 
 export async function obtenerReporteVentasDia(fecha) {

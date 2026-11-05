@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CampusEats · pedidos en tiempo real</title>
+  <style>
+    body { font: 16px/1.5 system-ui, sans-serif; margin: 2rem auto; max-width: 760px; padding: 0 1rem; color: #17212b; }
+    label { display: block; margin: 1rem 0 .25rem; font-weight: 600; }
+    input, button { box-sizing: border-box; font: inherit; padding: .6rem; }
+    input { width: 100%; }
+    button { margin-top: 1rem; cursor: pointer; }
+    pre { background: #f2f5f7; border-radius: .4rem; overflow: auto; padding: 1rem; }
+    #estado { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Pedidos en tiempo real</h1>
+    <p>Consulta el pedido por REST y luego recibe actualizaciones por Socket.IO. Usa un JWT de Ana, Beto o el administrador.</p>
+    <form id="conectar">
+      <label for="token">JWT</label>
+      <input id="token" autocomplete="off" required>
+      <label for="pedido">ID del pedido</label>
+      <input id="pedido" inputmode="numeric" type="number" min="1" required>
+      <button type="submit">Cargar y conectar</button>
+      <button id="desconectar" type="button">Desconectar</button>
+    </form>
+    <p>Conexión: <span id="conexion">desconectado</span></p>
+    <p>Estado del pedido: <span id="estado">sin cargar</span></p>
+    <h2>Actividad recibida</h2>
+    <pre id="actividad" aria-live="polite">Esperando conexión.</pre>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const form = document.querySelector('#conectar');
+    const tokenInput = document.querySelector('#token');
+    const pedidoInput = document.querySelector('#pedido');
+    const conexion = document.querySelector('#conexion');
+    const estado = document.querySelector('#estado');
+    const actividad = document.querySelector('#actividad');
+    let socket;
+    let pedidoId;
+
+    function registrar(nombre, datos) {
+      actividad.textContent = `${nombre}\n${JSON.stringify(datos, null, 2)}\n\n${actividad.textContent}`;
+    }
+
+    function aplicarEstado(evento) {
+      if (evento.id !== Number(pedidoId)) return;
+      estado.textContent = evento.estado;
+      registrar('pedido:estado', evento);
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (socket) socket.disconnect();
+      pedidoId = pedidoInput.value;
+      const token = tokenInput.value.trim();
+      conexion.textContent = 'consultando API…';
+
+      try {
+        const respuesta = await fetch(`/api/pedidos/${encodeURIComponent(pedidoId)}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const datos = await respuesta.json();
+        if (!respuesta.ok) throw new Error(datos.error || `HTTP ${respuesta.status}`);
+        estado.textContent = datos.estado;
+        registrar('GET /api/pedidos/:id', datos);
+
+        socket = io({ auth: { token } });
+        socket.on('connect', () => { conexion.textContent = 'conectado'; });
+        socket.on('disconnect', () => { conexion.textContent = 'desconectado'; });
+        socket.on('connect_error', (error) => {
+          conexion.textContent = `error: ${error.message}`;
+          registrar('connect_error', { mensaje: error.message });
+        });
+        socket.on('pedido:estado', aplicarEstado);
+        socket.on('pedido:creado', (evento) => registrar('pedido:creado (rol ADMIN)', evento));
+        socket.on('pedido:actualizado', (evento) => registrar('pedido:actualizado (rol ADMIN)', evento));
+      } catch (error) {
+        conexion.textContent = `error: ${error.message}`;
+      }
+    });
+
+    document.querySelector('#desconectar').addEventListener('click', () => {
+      if (socket) socket.disconnect();
+      conexion.textContent = 'desconectado';
+    });
+  </script>
+</body>
+</html>

@@ -787,6 +787,113 @@
       ]
     },
     {
+      "name": "Servicios externos (Semana 9)",
+      "item": [
+        {
+          "name": "Crear pedido y disparar correo (CLIENTE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{clientToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [{ \"productoId\": {{productId}}, \"cantidad\": 1 }]\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/pedidos"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "pm.test('Pedido creado', function () { pm.response.to.have.status(201); });",
+                "if (pm.response.code === 201) pm.collectionVariables.set('pedidoId', pm.response.json().id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Subir foto (ADMIN, elegir archivo en imagen)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "imagen", "type": "file", "src": "" }] },
+            "url": "{{baseUrl}}/api/productos/{{productId}}/imagen"
+          }
+        },
+        {
+          "name": "Marcar pedido PREPARANDO (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"PREPARANDO\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        },
+        {
+          "name": "Marcar pedido LISTO y enviar SMS simulado (ADMIN)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"estado\": \"LISTO\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/pedidos/{{pedidoId}}/estado"
+          }
+        },
+        {
+          "name": "Precio en dólares",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/productos/{{productId}}/precio-usd" }
+        },
+        {
+          "name": "Rechazo 403: Ana intenta subir una foto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{clientToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "imagen", "type": "file", "src": "" }] },
+            "url": "{{baseUrl}}/api/productos/{{productId}}/imagen"
+          }
+        },
+        {
+          "name": "Rechazo 415: PDF en el campo imagen (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "imagen", "type": "file", "src": "" }] },
+            "url": "{{baseUrl}}/api/productos/{{productId}}/imagen",
+            "description": "Selecciona un PDF en el campo imagen."
+          }
+        },
+        {
+          "name": "Rechazo 413: archivo mayor a 2 MB (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "imagen", "type": "file", "src": "" }] },
+            "url": "{{baseUrl}}/api/productos/{{productId}}/imagen",
+            "description": "Selecciona una imagen mayor a 2 MB."
+          }
+        },
+        {
+          "name": "Rechazo 400: campo inesperado foto (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "foto", "type": "file", "src": "" }] },
+            "url": "{{baseUrl}}/api/productos/{{productId}}/imagen",
+            "description": "Selecciona cualquier archivo; el nombre del campo debe ser foto para provocar el error."
+          }
+        }
+      ]
+    },
+    {
       "name": "Reportes",
       "item": [
         {

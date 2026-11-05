@@ -18,6 +18,15 @@ export async function buscarPorId(id) {
   return producto;
 }
 
+export async function cambiarImagen(id, imagenUrl) {
+  try {
+    return await prisma.producto.update({ where: { id }, data: { imagenUrl } });
+  } catch (error) {
+    if (error.code === 'P2025') throw noEncontrado('Producto no encontrado');
+    throw error;
+  }
+}
+
 export async function crear({
   nombre,
   precio,

@@ -28,6 +28,7 @@ model Usuario {
   email        String   @unique
   passwordHash String
   rol          Rol      @default(CLIENTE)
+  telefono     String?
   creadoEn     DateTime @default(now())
   pedidos      Pedido[]
 }
@@ -40,6 +41,7 @@ model Producto {
   disponible  Boolean     @default(true)
   descripcion String?
   categoria   String      @default("General")
+  imagenUrl   String?
   createdAt   DateTime    @default(now())
   items       PedidoItem[]
 
